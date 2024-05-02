@@ -2,32 +2,29 @@
 #include<time.h>
 #include<conio.h>
 #include<windows.h>
-#define L 50
-#define N 6
-#define N2 6
-#define DA 25
-#define A 21
+
+#define  LENGTH  50 // field length
+#define N_WALLS  7  // number of walls
+#define       A  25 // first parameter of the random number range
+#define       B  21 // second parameter of the random number range
+
 using namespace std;
 
-bool GameOver,flag;
-char jump;
-int x,y,score,distanza,bin,timejump;
-int xW[N],yW[N];
-int xW2[N2],yW2[N2];
+bool GameOver, flag;
+int xW[N_WALLS], y, score, dist, timejump;
+int const x = 5, yW = 1; // these variables are const because they represent respectively the x coord of the main character and the y coord of all the walls that do not change
 
 void Setup()
 {
-	x=5;
-	y=1;
-	xW[0]=L-1;
-	yW[0]=1;
-	score=0;
+	y = 1;
+	xW[0] = LENGTH-1;
+	score = 0;
 	srand(time(NULL));
-	distanza=DA+rand()%A;
-	bin=rand()%2;
-	timejump=0;
-	GameOver=false;
-	flag=false;
+	// In general the instruction "rand() % N" returns a random (integer positive) number in the range [0, N-1]
+	dist = A + rand() % B; // the instruction "A + rand() % B" returns a random integer number in the range [A, A+B-1]
+	timejump = 0;
+	GameOver = false;
+	flag = false;
 }
 
 void Intro()
@@ -37,7 +34,7 @@ void Intro()
     cout<<"                                                                                   \n";
     cout<<"                           Prodotto da: Corrado Raiola                             \n";
     cout<<"                                                                                   \n";
-    cout<<"                                 Versione: 1.0                                     \n";
+    cout<<"                                 Versione: 1.1                                     \n";
     cout<<"                                                                                   \n";
     cout<<"ศอออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออผ\n\n";
     system("pause");
@@ -46,7 +43,7 @@ void Intro()
     cout<<"                                                                                    \n";
     cout<<"                               Regolamento di Gioco:                                \n";
     cout<<"                                                                                    \n";
-    cout<<"          Salta il maggior numero di pareti utilizzando la frccia <sopra>           \n";
+    cout<<"          Salta il maggior numero di pareti utilizzando la barra spaziatrice        \n";
     cout<<"                         e ottieni il miglior punteggio!!                           \n";
     cout<<"           Se dovessi scontrarti con una di esse il gioco avra' termine.            \n";
     cout<<"                                                                                    \n";
@@ -54,73 +51,68 @@ void Intro()
     cout<<"                                                                                    \n";
     cout<<"ศอออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออผ\n\n";
     system("pause");
-	system("cls");  
+	system("cls");
 }
 
 void Draw()
 {
 	system("cls");
-	cout<<"Score: "<<score;
-	cout<<"\n\n\n\n\n\n\n\n\n\n";
-	cout<<"\n\n\n\n\n";
-	for(int i=0;i<3;i++)
+	cout << "Score: " << score;
+	cout << "\n\n\n\n\n\n\n\n\n\n";
+	for(int i=0; i<4; i++)
 	{
-		for(int j=0;j<L;j++)
+		for(int j=0; j<LENGTH; j++)
 		{
-			if(i==y && j==x) cout<<"Ü";
-			for(int k=0;k<N;k++)
+			if(i==y && j==x) cout << "Ü"; // print the main character
+			for(int k=0; k<N_WALLS; k++)
 			{
-				if(i==yW[k] && j==xW[k])
+				if(i==yW && j==xW[k])
 				{
-					cout<<"ฑ";
+					cout << "ฑ"; // print the wall
 					xW[k]--;
 				}
 			}
-			if(i!=2) cout<<" ";
-			else cout<<"ฐ";
+			if(i<2) cout << " "; // print the sky
+			else cout << "ฐ";  // print the ground
 		}
-		cout<<endl;
+		cout << endl;
 	}
 }
 
 void Logic()
 {
-	
-	if (timejump==5)
+	if(timejump == 5) // after 5 cycle the main character comes back to the ground
 	{
-		y=1;
-		timejump=0;
-		flag=false;
+		y = 1; // set the y coord to 1 which means that the character comes back to the ground after the jump
+		timejump = 0;
+		flag = false;
 	}
 	if(kbhit())
 	{
-		jump=getch();
-		if(jump==72)
+		if(getch() == 32) // 32 corresponds to the spacebar key
 		{
-			y--;
-			flag=true;
+			y = 0; // set the y coord to 0 which means that the character is jumping
+			flag = true; // after the jump the flag is high so that "timejump" can be incremented
 		}
 	}
-	if(y<0) y=0;
 	if(flag) timejump++;
-	for(int i=1;i<N;i++)
+	for(int i=0; i<N_WALLS; i++) // This for cycle implement the logic of Game Over after touching a wall
 	{
-		if(x==xW[i] && y==yW[i]) GameOver=true;
+		if(x==xW[i] && y==yW) GameOver = true;
 	}
 	score++;
 }
 
 void Wall()
 {
-	if(xW[0]==distanza)
+	if(xW[0] == dist) // every time the first wall x coord is equal to "dist" the entries of "xW[N_WALLS]" shift rightward
 	{
-		distanza=DA+rand()%A;
-		for(int i=N;i>0;i--)
+		dist = A + rand() % B; // the value of dist is updated so that the distance between two walls is always random
+		for(int i=N_WALLS-1; i>0; i--) // shifts the entries of "xW[N_WALLS]"
 		{
-			xW[i]=xW[i-1];
-			yW[i]=yW[i-1];
+			xW[i] = xW[i-1];
 		}
-		xW[0]=L-1;
+		xW[0] = LENGTH-1; // the first element is set to "LENGTH-1" so that a new wall can be generated
 	}
 }
 
@@ -149,7 +141,7 @@ int main()
 		Draw();
 		Logic();
 		Wall();
-		Sleep(20);
+		//Sleep(20);
 	}
 	Outro();
 	return 0;
