@@ -14,8 +14,20 @@ bool GameOver, flag;
 int xW[N_WALLS], y, score, dist, timejump;
 int const x = 5, yW = 1; // these variables are const because they represent respectively the x coord of the main character and the y coord of all the walls that do not change
 
+void ShowConsoleCursor(bool showFlag)
+{
+    HANDLE out = GetStdHandle(STD_OUTPUT_HANDLE);
+
+    CONSOLE_CURSOR_INFO cursorInfo;
+
+    GetConsoleCursorInfo(out, &cursorInfo);
+    cursorInfo.bVisible = showFlag; // set the cursor visibility
+    SetConsoleCursorInfo(out, &cursorInfo);
+}
+
 void Setup()
 {
+	ShowConsoleCursor(false);
 	y = 1;
 	xW[0] = LENGTH-1;
 	score = 0;
@@ -134,8 +146,8 @@ void Outro()
 
 int main()
 {
-	Intro();
 	Setup();
+	Intro();
 	while(!GameOver)
 	{
 		Draw();
